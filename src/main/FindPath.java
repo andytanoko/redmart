@@ -52,10 +52,12 @@ public class FindPath {
 	for (LinkedList<Integer> que : result) {
 	    StringBuffer sb = new StringBuffer();
 	    int len = que.size();
+	    int slope = calculateSlope(que);
 	    while (!que.isEmpty()) {
 		sb.append(que.pollLast()).append(",");
 	    }
-	    System.out.println("length=" + len + ", result=" + sb.toString());
+	    System.out.println("length=" + len + ",slope=" + slope
+		    + ", result=" + sb.toString());
 
 	    line++;
 	    if (line > 5) {
