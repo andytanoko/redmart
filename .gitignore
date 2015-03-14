@@ -1,0 +1,4 @@
+*.class
+*.prefs
+.settings/org.hibernate.eclipse.console.prefs
+*.prefs

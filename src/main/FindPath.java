@@ -16,12 +16,11 @@ public class FindPath {
     int maxRow = 0;
 
     private void main(String fileName) throws IOException {
-	int[][] skiMap = readFile(fileName);
+	Bean[][] skiMap = readFile(fileName);
 	List<LinkedList<Integer>> result = new ArrayList<LinkedList<Integer>>();
 	for (int y = 1; y < maxRow - 1; y++) {
 	    for (int x = 1; x < maxCol - 1; x++) {
-		traverseMap(y, x, skiMap, generateVisitedMap(),
-			new LinkedList<Integer>(), result);
+		traverseMap(y, x, skiMap, new LinkedList<Integer>(), result);
 	    }
 	}
 	sortAndPrintResult(result);
@@ -66,27 +65,17 @@ public class FindPath {
 
     }
 
-    private boolean[][] generateVisitedMap() {
-	boolean[][] visitedMap = new boolean[maxRow][maxCol];
-	for (int y = 0; y < maxRow; y++) {
-	    for (int x = 0; x < maxCol; x++) {
-		visitedMap[y][x] = false;
-	    }
-	}
-	return visitedMap;
+    private void traverseMap(int curY, int curX, Bean[][] skiMap,
+	    LinkedList<Integer> stack, List<LinkedList<Integer>> result) {
+	// int curVal = skiMap[curY][curX].getVal();
+	Bean bean = skiMap[curY][curX];
+	bean.setVisited(true);
+	stack.push(bean.getVal());
+	// System.out.println(curY + "," + curX);
+	// if (curX <= 0 || curY <= 0 || curX >= maxCol - 1 || curY >= maxRow -
+	// 1)
 
-    }
-
-    private void traverseMap(int curY, int curX, int[][] skiMap,
-	    boolean[][] visitedMap, LinkedList<Integer> stack,
-	    List<LinkedList<Integer>> result) {
-	Integer curVal = skiMap[curY][curX];
-
-	visitedMap[curY][curX] = true;
-
-	stack.push(curVal);
-
-	if (curX <= 0 || curY <= 0 || curX >= maxCol - 1 || curY >= maxRow - 1) {
+	if (!bean.isVisitable()) {
 	    LinkedList<Integer> stackClone = new LinkedList<Integer>();
 
 	    stackClone.addAll(stack);
@@ -95,38 +84,42 @@ public class FindPath {
 
 	} else {
 
-	    if ((skiMap[curY][curX - 1] < curVal)
-		    && (!visitedMap[curY][curX - 1])) {
-		traverseMap(curY, curX - 1, skiMap, visitedMap, stack, result);
+	    if ((skiMap[curY][curX - 1].getVal() < bean.getVal())
+		    && (!skiMap[curY][curX - 1].isVisited())) {
+		traverseMap(curY, curX - 1, skiMap, stack, result);
 	    }// left;
-	    if (skiMap[curY][curX + 1] < curVal
-		    && (!visitedMap[curY][curX + 1])) {
-		traverseMap(curY, curX + 1, skiMap, visitedMap, stack, result);
+	    if (skiMap[curY][curX + 1].getVal() < bean.getVal()
+		    && (!skiMap[curY][curX + 1].isVisited())) {
+		traverseMap(curY, curX + 1, skiMap, stack, result);
 	    }// right;
-	    if (skiMap[curY - 1][curX] < curVal
-		    && (!visitedMap[curY - 1][curX])) {
-		traverseMap(curY - 1, curX, skiMap, visitedMap, stack, result);
+	    if (skiMap[curY - 1][curX].getVal() < bean.getVal()
+		    && (!skiMap[curY - 1][curX].isVisited())) {
+		traverseMap(curY - 1, curX, skiMap, stack, result);
 	    }// up;
-	    if (skiMap[curY + 1][curX] < curVal
-		    && (!visitedMap[curY + 1][curX])) {
-		traverseMap(curY + 1, curX, skiMap, visitedMap, stack, result);
+	    if (skiMap[curY + 1][curX].getVal() < bean.getVal()
+		    && (!skiMap[curY + 1][curX].isVisited())) {
+		traverseMap(curY + 1, curX, skiMap, stack, result);
 	    }// down;
 	}
-	visitedMap[curY][curX] = false;
+	bean.setVisited(false);
 	stack.pop();
     }
 
-    private int[][] generateMapMinusOne(int row, int col) {
-	int[][] result = new int[row][col];
+    private Bean[][] generateMap(int row, int col) {
+	Bean[][] result = new Bean[row][col];
 	for (int y = 0; y < row; y++) {
 	    for (int x = 0; x < col; x++) {
-		result[y][x] = -1;
+		Bean bean = new Bean();
+		bean.setVal(0);
+		bean.setVisitable(false);
+		bean.setVisited(false);
+		result[y][x] = bean;
 	    }
 	}
 	return result;
     }
 
-    private int[][] readFile(String filename) throws IOException {
+    private Bean[][] readFile(String filename) throws IOException {
 	File file = new File(filename);
 	try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 
@@ -137,13 +130,16 @@ public class FindPath {
 		maxCol = Integer.parseInt(arrNumber[1]) + 2;
 	    }
 	    int row = 0;
-	    int[][] result = generateMapMinusOne(maxRow, maxCol);
+	    Bean[][] result = generateMap(maxRow, maxCol);
 
 	    for (String line; (line = br.readLine()) != null; row++) {
 		String[] arrNumber = line.split(" ");
 
 		for (int col = 0; col < arrNumber.length; col++) {
-		    result[1 + row][1 + col] = Integer.parseInt(arrNumber[col]);
+		    Bean bean = result[1 + row][1 + col];
+		    bean.setVal(Integer.parseInt(arrNumber[col]));
+		    bean.setVisited(false);
+		    bean.setVisitable(true);
 		}
 	    }
 	    return result;
